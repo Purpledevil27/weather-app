@@ -73,8 +73,8 @@ function App() {
             return response.json();
           })
           .then((data) => {
-            const requested_time = data.dt;
-            const { temp, feels_like, humidity, pressure } = data.main;
+            // const requested_time = data.dt;
+            const { temp, feels_like, humidity } = data.main;
             const place = data.name;
             const { description, icon } = data.weather[0];
             const { sunrise, sunset } = data.sys;
@@ -101,7 +101,7 @@ function App() {
             // Converting Epoch(Unix) time to GMT
             const sunriseGMT = new Date(sunrise * 1000);
             const sunsetGMT = new Date(sunset * 1000);
-            const requested_timeGMT = new Date(requested_time * 1000);
+            // const requested_timeGMT = new Date(requested_time * 1000);
 
             let today = new Date();
             let hour = today.getHours();
@@ -169,12 +169,13 @@ function App() {
       });
     }
   });
-
+  console.log(img)
   return (
     <div>
+
       <Preloader load={load} />
       <div className="container" style={{
-        backgroundImage: `url(/images/${img}.jpg)`,
+        backgroundImage: `url(images/${img}.jpg)`,
         backgroundSize: "cover",
         backgroundPosition: "center center",
         backgroundRepeat: "no-repeat",
