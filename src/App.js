@@ -169,7 +169,7 @@ function App() {
       });
     }
   });
-  console.log(img)
+
   return (
     <div>
 
