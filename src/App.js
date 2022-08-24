@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Preloader from "../src/components/Preload"
 
 function App() {
+
   const { REACT_APP_API_KEY } = process.env
   const api = `${REACT_APP_API_KEY}`
 
@@ -18,157 +19,167 @@ function App() {
     return () => clearTimeout(timer)
   }, [])
 
-  window.addEventListener('load', () => {
-    let long;
-    let lat;
+  var options = {
+    enableHighAccuracy: true,
+    timeout: 5000,
+    maximumAge: 0,
+  };
 
-    // Accesing Geolocation of User
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        // Storing Longitude and Latitude in variables
-        long = position.coords.longitude;
-        lat = position.coords.latitude;
-        const base = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${long}&appid=${api}&units=metric&lang=en`;
+  function error(err) {
+    alert("Access to location required")
+    console.warn(`ERROR(${err.code}): ${err.message}`);
+  }
 
-        const air_pol = `https://api.openweathermap.org/data/2.5/air_pollution/forecast?lat=${lat}&lon=${long}&appid=${api}`
+  function success(pos) {
+    var crd = pos.coords;
+    const long = crd.longitude;
+    const lat = crd.latitude;
 
-        // Using fetch to get data
-        // Air-pollution
-        fetch(air_pol)
-          .then((response) => {
-            return response.json();
-          })
-          .then((list) => {
+    showWeather(long, lat);
+  }
 
-            const { aqi } = list.list[0].main;
-            const air = document.querySelector('.air')
+  navigator.geolocation.getCurrentPosition(success, error, options);
 
-            let quality = "";
-            switch (aqi) {
-              case 1:
-                quality = "Good";
-                break;
-              case 2:
-                quality = "Fair";
-                break;
-              case 3:
-                quality = "Moderate";
-                break;
-              case 4:
-                quality = "Poor";
-                break;
-              case 5:
-                quality = "Very Poor";
-                break;
-              default:
-                console.log("error");
-            }
+  async function getWeather(long, lat) {
+    const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${long}&appid=${api}&units=metric&lang=en`);
+    const data = await res.json();
+    return data;
+  }
 
-            air.textContent = `${quality}`
-          })
+  async function getair(long, lat) {
+    const res = await fetch(`https://api.openweathermap.org/data/2.5/air_pollution/forecast?lat=${lat}&lon=${long}&appid=${api}`);
+    const data = await res.json();
+    return data;
+  }
 
-        // Weather
-        fetch(base)
-          .then((response) => {
-            return response.json();
-          })
-          .then((data) => {
-            // const requested_time = data.dt;
-            const { temp, feels_like, humidity } = data.main;
-            const place = data.name;
-            const { description, icon } = data.weather[0];
-            const { sunrise, sunset } = data.sys;
-            let uvi = data.uvi;
-            const cloudiness = data.clouds.all;
-            const visibility = data.visibility;
-            const iconUrl = `https://openweathermap.org/img/wn/${icon}@2x.png`;
-            const { speed } = data.wind;
+  async function showWeather(long, lat) {
+    const data = await getWeather(long, lat);
+    const air_pol = await getair(long, lat);
+    if (data) {
+      // console.log(data);
+      // const requested_time = data.dt;
+      const { temp, feels_like, humidity } = data.main;
+      const place = data.name;
+      const { description, icon } = data.weather[0];
+      const { sunrise, sunset } = data.sys;
+      let uvi = data.uvi;
+      const cloudiness = data.clouds.all;
+      const visibility = data.visibility;
+      const iconUrl = `https://openweathermap.org/img/wn/${icon}@2x.png`;
+      const { speed } = data.wind;
 
 
-            const fahrenheit_main = (temp * 9) / 5 + 32;
-            const fahrenheit_feel = (feels_like * 9) / 5 + 32;
-            let visibility_meter = visibility / 1000;
+      const fahrenheit_main = (temp * 9) / 5 + 32;
+      const fahrenheit_feel = (feels_like * 9) / 5 + 32;
+      let visibility_meter = visibility / 1000;
 
-            if (uvi === undefined) {
-              uvi = "N/A";
-            }
-            if (visibility_meter === 10) {
-              visibility_meter = "Clear";
-            }
-            else {
-              visibility_meter = `${visibility_meter} m`;
-            }
-            // Converting Epoch(Unix) time to GMT
-            const sunriseGMT = new Date(sunrise * 1000);
-            const sunsetGMT = new Date(sunset * 1000);
-            // const requested_timeGMT = new Date(requested_time * 1000);
+      if (uvi === undefined) {
+        uvi = "N/A";
+      }
+      if (visibility_meter === 10) {
+        visibility_meter = "Clear";
+      }
+      else {
+        visibility_meter = `${visibility_meter} m`;
+      }
+      // Converting Epoch(Unix) time to GMT
+      const sunriseGMT = new Date(sunrise * 1000);
+      const sunsetGMT = new Date(sunset * 1000);
+      // const requested_timeGMT = new Date(requested_time * 1000);
 
-            let today = new Date();
-            let hour = today.getHours();
+      let today = new Date();
+      let hour = today.getHours();
 
-            // Getting elements
-            const iconImg = document.getElementById('weather-icon');
-            const loc = document.querySelector('#location');
-            const tempC = document.querySelector('.c');
-            const tempF = document.querySelector('.f');
-            const desc = document.querySelector('.desc');
-            const sunriseDOM = document.querySelector('.sunrise');
-            const sunsetDOM = document.querySelector('.sunset');
-            const feelC = document.querySelector('.cf');
-            const feelF = document.querySelector('.ff');
-            const uv = document.querySelector('.uv');
-            const vis = document.querySelector('.vis');
-            const cloud = document.querySelector('.cloud');
-            const humid = document.querySelector('.humidity')
-            const timenow = document.querySelector('.time');
-            const wind = document.querySelector('.wind')
-            const circle = document.querySelector('.circle')
-            const circle_info = document.querySelectorAll('.circle-info')
+      // Getting elements
+      const iconImg = document.getElementById('weather-icon');
+      const loc = document.querySelector('#location');
+      const tempC = document.querySelector('.c');
+      const tempF = document.querySelector('.f');
+      const desc = document.querySelector('.desc');
+      const sunriseDOM = document.querySelector('.sunrise');
+      const sunsetDOM = document.querySelector('.sunset');
+      const feelC = document.querySelector('.cf');
+      const feelF = document.querySelector('.ff');
+      const uv = document.querySelector('.uv');
+      const vis = document.querySelector('.vis');
+      const cloud = document.querySelector('.cloud');
+      const humid = document.querySelector('.humidity')
+      const timenow = document.querySelector('.time');
+      const wind = document.querySelector('.wind')
+      const circle = document.querySelector('.circle')
+      const circle_info = document.querySelectorAll('.circle-info')
 
-            // updateing values
-            iconImg.src = iconUrl;
-            loc.textContent = `${place}`;
-            desc.textContent = `${description}`;
-            tempC.textContent = `${temp.toFixed(2)} °C`;
-            tempF.textContent = `${fahrenheit_main.toFixed(2)} °F`;
-            feelC.textContent = `${feels_like.toFixed(2)} °C`;
-            feelF.textContent = `${fahrenheit_feel.toFixed(2)} °F`;
-            uv.textContent = `${uvi} `;
-            vis.textContent = `${visibility_meter}`
-            cloud.textContent = `${cloudiness} %`
-            sunriseDOM.textContent = `${sunriseGMT.toLocaleDateString()}, ${sunriseGMT.toLocaleTimeString()}`;
-            sunsetDOM.textContent = `${sunsetGMT.toLocaleDateString()}, ${sunsetGMT.toLocaleTimeString()}`;
-            timenow.textContent = `${today}`;
-            humid.textContent = `${humidity} %`
-            wind.textContent = `${speed} m/s`
+      // updateing values
+      iconImg.src = iconUrl;
+      loc.innerHTML = `${place}`;
+      desc.innerHTML = `${description}`;
+      tempC.innerHTML = `${temp.toFixed(2)} °C`;
+      tempF.innerHTML = `${fahrenheit_main.toFixed(2)} °F`;
+      feelC.innerHTML = `${feels_like.toFixed(2)} °C`;
+      feelF.innerHTML = `${fahrenheit_feel.toFixed(2)} °F`;
+      uv.innerHTML = `${uvi} `;
+      vis.innerHTML = `${visibility_meter}`
+      cloud.innerHTML = `${cloudiness} %`
+      sunriseDOM.innerHTML = `${sunriseGMT.toLocaleDateString()}, ${sunriseGMT.toLocaleTimeString()}`;
+      sunsetDOM.innerHTML = `${sunsetGMT.toLocaleDateString()}, ${sunsetGMT.toLocaleTimeString()}`;
+      timenow.innerHTML = `${today}`;
+      humid.innerHTML = `${humidity} %`
+      wind.innerHTML = `${speed} m/s`
 
-            // Change background image and color accoring to the time
-            if (hour < 5 || hour >= 20) {
-              setimg('night2');
-              setcolor('white');
-              circle.style.backgroundColor = "white";
-              circle_info.forEach(element => {
-                element.style.backgroundColor = 'white';
-              });
-            }
-            else if (hour >= 5 && hour < 9) {
-              setimg('morning');
-            }
-            else if (hour >= 9 && hour < 17) {
-              setimg('afternoon');
-            }
-            else if (hour >= 17 && hour < 20) {
-              setimg('evening');
-              setcolor('white');
-              circle.style.backgroundColor = "white";
-              circle_info.forEach(element => {
-                element.style.backgroundColor = 'white';
-              });
-            }
-          });
-      });
+      // Change background image and color accoring to the time
+      if (hour < 5 || hour >= 20) {
+        setimg('night2');
+        setcolor('white');
+        circle.style.backgroundColor = "white";
+        circle_info.forEach(element => {
+          element.style.backgroundColor = 'white';
+        });
+      }
+      else if (hour >= 5 && hour < 9) {
+        setimg('morning');
+      }
+      else if (hour >= 9 && hour < 17) {
+        setimg('afternoon');
+      }
+      else if (hour >= 17 && hour < 20) {
+        setimg('evening');
+        setcolor('white');
+        circle.style.backgroundColor = "white";
+        circle_info.forEach(element => {
+          element.style.backgroundColor = 'white';
+        });
+      }
     }
-  });
+    // Air Pollution
+    if (air_pol) {
+      console.log(air_pol)
+      const { aqi } = air_pol.list[0].main;
+      const air = document.querySelector('.air')
+
+      let quality = "";
+      switch (aqi) {
+        case 1:
+          quality = "Good";
+          break;
+        case 2:
+          quality = "Fair";
+          break;
+        case 3:
+          quality = "Moderate";
+          break;
+        case 4:
+          quality = "Poor";
+          break;
+        case 5:
+          quality = "Very Poor";
+          break;
+        default:
+          console.log("error");
+      }
+
+      air.innerHTML = `${quality}`
+    }
+  }
 
   return (
     <div>
