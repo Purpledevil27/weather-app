@@ -30,7 +30,7 @@ function App() {
         lat = position.coords.latitude;
         const base = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${long}&appid=${api}&units=metric&lang=en`;
 
-        const air_pol = `http://api.openweathermap.org/data/2.5/air_pollution/forecast?lat=${lat}&lon=${long}&appid=${api}`
+        const air_pol = `https://api.openweathermap.org/data/2.5/air_pollution/forecast?lat=${lat}&lon=${long}&appid=${api}`
 
         // Using fetch to get data
         // Air-pollution
@@ -81,7 +81,7 @@ function App() {
             let uvi = data.uvi;
             const cloudiness = data.clouds.all;
             const visibility = data.visibility;
-            const iconUrl = `http://openweathermap.org/img/wn/${icon}@2x.png`;
+            const iconUrl = `https://openweathermap.org/img/wn/${icon}@2x.png`;
             const { speed } = data.wind;
 
 
