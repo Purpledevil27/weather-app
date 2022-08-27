@@ -26,7 +26,7 @@ function App() {
   };
 
   function error(err) {
-    alert("Access to location required")
+    // alert("Access to location required")
     console.warn(`ERROR(${err.code}): ${err.message}`);
   }
 
@@ -104,6 +104,7 @@ function App() {
       const sunriseGMT = new Date(sunrise * 1000);
       const sunsetGMT = new Date(sunset * 1000);
       // const requested_timeGMT = new Date(requested_time * 1000);
+      // console.log(requested_timeGMT)
 
       let today = new Date();
       let hour = today.getHours();
