@@ -1,3 +1,11 @@
+# Weather-App 
+
+Weather application which provides you different information like temperature, feels like, humidity, sunrise & sunset time, cloudiness, visibility, wind speed. The background image changes with respect to time, morning has a different image and so on. It also has description of the weather with the icon which makes the weather more innovate. 
+
+Either allow permission to access location or type in the city name to get weather condition.
+
+![Screenshot (1390)](https://user-images.githubusercontent.com/54908639/187031766-00f03286-fcb5-4e64-9847-acbbac5a9779.png)
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
