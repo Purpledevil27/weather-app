@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import Preloader from "../src/components/Preload"
-
 function App() {
 
   const { REACT_APP_API_KEY } = process.env
@@ -8,6 +7,7 @@ function App() {
 
   const [img, setimg] = useState("def")
   const [color, setcolor] = useState("black")
+  const [city, setCity] = useState('')
 
   const [load, setLoad] = useState(true)
 
@@ -39,6 +39,24 @@ function App() {
   }
 
   navigator.geolocation.getCurrentPosition(success, error, options);
+
+  const handleChange = (event) => {
+    setCity(event.target.value);
+    // console.log('value is:', event.target.value);
+  };
+
+  async function getWeatherbyCityName(e) {
+    // e.preventDefault();
+    const res = await fetch(`http://api.openweathermap.org/geo/1.0/direct?q=${city}&appid=${api}`);
+    const data = await res.json();
+    // console.log(data)
+    if (data.length === 0) {
+      alert("City not found!");
+    }
+    else {
+      showWeather(data[0].lon, data[0].lat)
+    }
+  }
 
   async function getWeather(long, lat) {
     const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${long}&appid=${api}&units=metric&lang=en`);
@@ -152,7 +170,7 @@ function App() {
     }
     // Air Pollution
     if (air_pol) {
-      console.log(air_pol)
+      // console.log(air_pol)
       const { aqi } = air_pol.list[0].main;
       const air = document.querySelector('.air')
 
@@ -193,6 +211,12 @@ function App() {
         backgroundAttachment: "fixed",
         color: `${color}`
       }}>
+        <div>
+          <div className="search-container">
+            <input onChange={handleChange} value={city} placeholder='Type City name to get weather condition' />
+            <button id='search-btn' onClick={getWeatherbyCityName}>Search</button>
+          </div>
+        </div>
 
         <img src="" alt="" srcSet="" id="weather-icon" />
         <div id="location">Unable to Fetch Weather</div>
